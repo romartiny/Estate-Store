@@ -124,6 +124,7 @@ const fileName = [
 
 const getPhoto = (arr) => {
     const i = getRandomNumber(0, arr.length);
+    // var photos = 'img/{fileName}';
     return arr[i];
 }
 
