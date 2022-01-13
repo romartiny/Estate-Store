@@ -109,20 +109,23 @@ const getBuild = (minNum, maxNum) => {
 
 // Photos
 
-let src = "img/${fileName}";
-
 const fileName = [
-    "apt_1.png",
-    "apt_2.png",
-    "apt_3.png",
-    "apt_4.png",
-    "apt_5.png",
-    "apt_6.png",
-    "house_1.png",
-    "house_2.png",
-    "house_4.png",
-    "house_4.png",
+    "img/apt_1.png",
+    "img/apt_2.png",
+    "img/apt_3.png",
+    "img/apt_4.png",
+    "img/apt_5.png",
+    "img/apt_6.png",
+    "img/house_1.png",
+    "img/house_2.png",
+    "img/house_4.png",
+    "img/house_4.png",
 ];
+
+const getPhoto = (arr) => {
+    const i = getRandomNumber(0, arr.length);
+    return arr[i];
+}
 
 // Filters
 
@@ -163,7 +166,7 @@ const getEstate = () => {
             street: getStreet(streets),
             building: getBuild(1, 40),
         },
-        //photos: getPhoto(),
+        photos: getPhoto(fileName),
         filters: {
             type: getType(type),
             area: getArea(30, 250),
