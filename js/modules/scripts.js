@@ -109,7 +109,7 @@ const getBuild = (minNum, maxNum) => {
 
 // Photos
 
-const fileName = [
+const photos = [
     "img/apt_1.png",
     "img/apt_2.png",
     "img/apt_3.png",
@@ -123,9 +123,7 @@ const fileName = [
 ];
 
 const getPhoto = (arr) => {
-    const i = getRandomNumber(0, arr.length);
     // var photos = 'img/{fileName}';
-    return arr[i];
 }
 
 // Filters
