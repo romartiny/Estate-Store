@@ -66,10 +66,11 @@ const getRating = (minNum, maxNum) => {
     return Math.floor(Math.random() * (maxNum - minNum) + minNum) / 10;
 }
 
-// Date //FIXME
+// Date
 
 const getPublishDate = () => {
-    return date = new Date(21);
+    timeNow = Math.floor(Math.random() * Date.now());
+    return new Date(timeNow);
 }
 
 // City
@@ -109,21 +110,29 @@ const getBuild = (minNum, maxNum) => {
 
 // Photos
 
-const photos = [
-    "img/apt_1.png",
-    "img/apt_2.png",
-    "img/apt_3.png",
-    "img/apt_4.png",
-    "img/apt_5.png",
-    "img/apt_6.png",
-    "img/house_1.png",
-    "img/house_2.png",
-    "img/house_4.png",
-    "img/house_4.png",
+const fileNames = [
+    "apt_1.png",
+    "apt_2.png",
+    "apt_3.png",
+    "apt_4.png",
+    "apt_5.png",
+    "apt_6.png",
+    "house_1.png",
+    "house_2.png",
+    "house_3.png",
+    "house_4.png",
 ];
 
-const getPhoto = (arr) => {
-    // var photos = 'img/{fileName}';
+const renderPhotosSrc = () => {
+    const count = getRandomNumber(1, 4);
+    const photos = [];
+    for (let index = 0; index < count; index++) {
+        const photoName = fileNames[getRandomNumber(0, fileNames.length)];
+        // const srcPhoto = "img/" + photoName;
+        const srcPhoto = `img/${photoName}`;
+        photos.push(srcPhoto);
+    }
+    return photos;
 }
 
 // Filters
@@ -165,7 +174,7 @@ const getEstate = () => {
             street: getStreet(streets),
             building: getBuild(1, 40),
         },
-        photos: getPhoto(fileName),
+        photos: renderPhotosSrc(fileNames),
         filters: {
             type: getType(type),
             area: getArea(30, 250),
@@ -174,7 +183,9 @@ const getEstate = () => {
     };
 }
 
-for (let i = 0; i < 7; i++) {
+const countEstate = 7;
+
+for (let i = 0; i < countEstate; i++) {
     const estate = getEstate();
     estates.push(estate);
     
