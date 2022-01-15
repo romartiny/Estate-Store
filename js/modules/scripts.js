@@ -1,8 +1,7 @@
-// Main Massive
+'use strict';
 
-const estates = [];
-
-// Names
+const COUNT_ESTATE = 7;
+const CATEGORY = "Недвижимость";
 
 const names = [
     "Двушка в центре Питера",
@@ -12,17 +11,6 @@ const names = [
     "Апартаменты для фрилансера"
 ];
 
-const getName = (arr) => {
-    const i = getRandomNumber(0, arr.length);
-    return arr[i];
-}
-
-const getRandomNumber = (minNum, maxNum) => {
-    return Math.floor(Math.random() * (maxNum - minNum) + minNum);
-}
-
-// Description
-
 const descriptions = [
     "Студия с лаконичным дизайном возле Ангары.",
     "Трёхкомнатная квартира для большой семьи рядом с Кремлём.",
@@ -31,23 +19,6 @@ const descriptions = [
     "Уютная однушка в тихом спальном районе. Рядом лес и озёра."
 ];
 
-const getDescription = (arr) => {
-    const i = getRandomNumber(0, arr.length);
-    return arr[i];
-}
-
-// Price
-
-const getPrice = (minNum, maxNum) => {
-    return Math.floor((Math.random() * (maxNum - minNum) + minNum) /100) * 100;
-}
-
-// Category
-
-const CATEGORY = "Недвижимость";
-
-// Seller
-
 const sellers = [
     "Бюро Семёна",
     "Игнат-Агент",
@@ -55,39 +26,12 @@ const sellers = [
     "Марья Андреевна"
 ];
 
-const getSellerName = (arr) => {
-    const i = getRandomNumber(0, arr.length);
-    return arr[i];
-}
-
-// Rating
-
-const getRating = (minNum, maxNum) => {
-    return Math.floor(Math.random() * (maxNum - minNum) + minNum) / 10;
-}
-
-// Date
-
-const getPublishDate = () => {
-    timeNow = Math.floor(Math.random() * Date.now());
-    return new Date(timeNow);
-}
-
-// City
-
-const city = [
+const cities = [
     "Иркутск",
     "Москва",
     "Красноярск",
     "Минск"
 ];
-
-const getCity = (arr) => {
-    const i = getRandomNumber(0, arr.length);
-    return arr[i];
-}
-
-// Street
 
 const streets = [
     "ул. Шахтеров",
@@ -96,19 +40,6 @@ const streets = [
     "ул. Мира",
     "ул. Советская"
 ];
-
-const getStreet = (arr) => {
-    const i = getRandomNumber(0, arr.length);
-    return arr[i];
-}
-
-// Building
-
-const getBuild = (minNum, maxNum) => {
-    return Math.floor((Math.random() * 40));
-}
-
-// Photos
 
 const fileNames = [
     "apt_1.png",
@@ -123,25 +54,72 @@ const fileNames = [
     "house_4.png",
 ];
 
-const renderPhotosSrc = () => {
-    const count = getRandomNumber(1, 4);
-    const photos = [];
-    for (let index = 0; index < count; index++) {
-        const photoName = fileNames[getRandomNumber(0, fileNames.length)];
-        // const srcPhoto = "img/" + photoName;
-        const srcPhoto = `img/${photoName}`;
-        photos.push(srcPhoto);
-    }
-    return photos;
-}
-
-// Filters
-
-const type = [
+const types = [
     "house",
     "apartment",
     "flat"
 ];
+
+const estates = [];
+
+const getRandomNumber = (minNum, maxNum) => {
+    return Math.floor(Math.random() * (maxNum - minNum) + minNum);
+}
+
+
+const getName = (arr) => {
+    const i = getRandomNumber(0, arr.length);
+    return arr[i];
+}
+
+const getDescription = (arr) => {
+    const i = getRandomNumber(0, arr.length);
+    return arr[i];
+}
+
+const getPrice = (minNum, maxNum) => {
+    return (getRandomNumber() /100) * 100;
+}
+
+const getSellerName = (arr) => {
+    const index = getRandomNumber(0, arr.length);
+    return arr[index];
+}
+
+const getRating = (minNum, maxNum) => {
+    return getRandomNumber(minNum, maxNum) / 10;
+}
+
+const getPublishDate = () => {
+     return Math.floor(Math.random() * Date.now());
+}
+
+const getCity = (arr) => {
+    const i = getRandomNumber(0, arr.length);
+    return arr[i];
+}
+
+const getStreet = (arr) => {
+    const i = getRandomNumber(0, arr.length);
+    return arr[i];
+}
+
+const getBuildNumber = () => {
+    return Math.floor((Math.random() * 40));
+}
+
+const renderPhotosSrc = () => {
+    const count = getRandomNumber(1, 4);
+    const photos = [];
+
+    for (let index = 0; index < count; index++) {
+        const photoName = fileNames[getRandomNumber(0, fileNames.length)];
+        const srcPhoto = `img/${photoName}`;
+        photos.push(srcPhoto);
+    }
+
+    return photos;
+}
 
 const getType = (arr) => {
     const i = getRandomNumber(0, arr.length);
@@ -149,14 +127,12 @@ const getType = (arr) => {
 }
 
 const getArea = (minNum, maxNum) => {
-    return Math.floor((Math.random() * (maxNum - minNum) + minNum));
+    return getRandomNumber(minNum, maxNum);
 }
 
 const getRoomsCount = (minNum, maxNum) => {
-    return Math.floor((Math.random() * (maxNum - minNum) + minNum));
+    return getRandomNumber(minNum, maxNum);
 }
-
-// For Massive
 
 const getEstate = () => {
     return {
@@ -168,29 +144,25 @@ const getEstate = () => {
             fullname: getSellerName(sellers),
             rating: getRating(0, 50),
         },
-        publishDate: getPublishDate(),
+        publishDate: new Date(getPublishDate()),
         address: {
-            city: getCity(city),
+            city: getCity(cities),
             street: getStreet(streets),
-            building: getBuild(1, 40),
+            building: getBuildNumber(),
         },
         photos: renderPhotosSrc(fileNames),
         filters: {
-            type: getType(type),
+            type: getType(types),
             area: getArea(30, 250),
             roomsCount: getRoomsCount(1,7),
         },
     };
 }
 
-const countEstate = 7;
-
-for (let i = 0; i < countEstate; i++) {
+for (let i = 0; i < COUNT_ESTATE; i++) {
     const estate = getEstate();
     estates.push(estate);
     
 }
-
-// Write Massive
 
 console.log(estates);
