@@ -2,6 +2,14 @@
 
 const COUNT_ESTATE = 7;
 const CATEGORY = "Недвижимость";
+const MIN_PRICE = 250000;
+const MAX_PRICE = 2000000;
+const MIN_RATING = 0;
+const MAX_RATING = 50;
+const MIN_AREA = 30;
+const MAX_AREA = 250;
+const MIN_ROOM_COUNT = 1;
+const MAX_ROOM_COUNT = 7;
 
 const names = [
     "Двушка в центре Питера",
@@ -77,8 +85,8 @@ const getDescription = (arr) => {
     return arr[i];
 }
 
-const getPrice = (minNum, maxNum) => {
-    return (getRandomNumber() /100) * 100;
+const getPrice = (MIN_PRICE, MAX_PRICE) => {
+    return (getRandomNumber(MIN_PRICE, MAX_PRICE) /100) * 100;
 }
 
 const getSellerName = (arr) => {
@@ -86,8 +94,8 @@ const getSellerName = (arr) => {
     return arr[index];
 }
 
-const getRating = (minNum, maxNum) => {
-    return getRandomNumber(minNum, maxNum) / 10;
+const getRating = (MIN_RATING, MAX_RATING) => {
+    return getRandomNumber(MIN_RATING, MAX_RATING) / 10;
 }
 
 const getPublishDate = () => {
@@ -126,23 +134,23 @@ const getType = (arr) => {
     return arr[i];
 }
 
-const getArea = (minNum, maxNum) => {
-    return getRandomNumber(minNum, maxNum);
+const getArea = (MIN_AREA, MAX_AREA) => {
+    return getRandomNumber(MIN_AREA, MAX_AREA);
 }
 
-const getRoomsCount = (minNum, maxNum) => {
-    return getRandomNumber(minNum, maxNum);
+const getRoomsCount = (MIN_ROOM_COUNT, MAX_ROOM_COUNT) => {
+    return getRandomNumber(MIN_ROOM_COUNT, MAX_ROOM_COUNT);
 }
 
 const getEstate = () => {
     return {
         name: getName(names),
         description: getDescription(descriptions),
-        price: getPrice(250000, 2000000),
+        price: getPrice(MIN_PRICE, MAX_PRICE),
         category: CATEGORY,
         seller: {
             fullname: getSellerName(sellers),
-            rating: getRating(0, 50),
+            rating: getRating(MIN_RATING, MAX_RATING),
         },
         publishDate: new Date(getPublishDate()),
         address: {
@@ -153,8 +161,8 @@ const getEstate = () => {
         photos: renderPhotosSrc(fileNames),
         filters: {
             type: getType(types),
-            area: getArea(30, 250),
-            roomsCount: getRoomsCount(1,7),
+            area: getArea(MIN_AREA, MAX_AREA),
+            roomsCount: getRoomsCount(MIN_ROOM_COUNT, MAX_ROOM_COUNT),
         },
     };
 }
