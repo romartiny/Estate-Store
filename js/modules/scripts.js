@@ -173,4 +173,4 @@ for (let i = 0; i < COUNT_ESTATE; i++) {
     
 }
 
-console.log(estates);
+// console.log(estates);
