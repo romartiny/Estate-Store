@@ -174,3 +174,73 @@ for (let i = 0; i < COUNT_ESTATE; i++) {
 }
 
 // console.log(estates);
+
+const productList = document.querySelector('.results__list');
+
+const getProductItem = (item) => {
+    const card = `<li class="results__item product">
+    <button class="product__favourite fav-add" type="button" aria-label="Добавить в избранное">
+      <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 7C3 13 10 16.5 11 17C12 16.5 19 13 19 7C19 4.79086 17.2091 3 15 3C12 3 11 5 11 5C11 5 10 3 7 3C4.79086 3 3 4.79086 3 7Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="product__image">
+      <div class="product__image-more-photo hidden">+2 фото</div>
+      <img src="${item.photos[0]}" width="318" height="220" alt="${item.name}">
+    </div>
+    <div class="product__content">
+      <h3 class="product__title">
+        <a href="#">${item.name}</a>
+      </h3>
+      <div class="product__price">${item.price}</div>
+      <div class="product__address">${item.address.street}</div>
+      <div class="product__date">${item.publishDate}</div>
+    </div>
+  </li>`;
+
+    return card;
+}
+
+const renderElement = (template) =>{
+    const item = document.createElement('div');
+    item.innerHTML = template;
+    return item.firstChild;
+};
+
+const renderProductList = () => {
+    const fragment = document.createDocumentFragment();
+
+    const list = estates.length < 7 ? estates.slice() : estates.slice(0,7); // тернарный оператор
+    
+    list.forEach((item) => {
+        const productItem = getProductItem(item);
+        const element = renderElement(productItem);
+        fragment.appendChild(element);
+    });
+
+    // for (let n = 0; n < 7; n++) {
+    //     const productItem = getProductItem(estates[n]);
+    //     const element = renderElement(productItem);
+    //     fragment.appendChild(element);
+    // }
+    
+    return fragment;
+}
+
+productList.innerHTML = "";
+
+productList.appendChild(renderProductList());
+
+
+
+
+
+
+
+
+
+// console.log(productList);
+
+// const productTitle = getProductItem();
+
+// newElements.innerHTML = getProductItem();
