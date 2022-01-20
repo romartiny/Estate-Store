@@ -10,6 +10,8 @@ const MIN_AREA = 30;
 const MAX_AREA = 250;
 const MIN_ROOM_COUNT = 1;
 const MAX_ROOM_COUNT = 7;
+const ONE_DAY = 1000 * 60 * 60 * 24;
+const TWO_DAYS = ONE_DAY * 2;
 
 const names = [
     "Двушка в центре Питера",
@@ -70,10 +72,24 @@ const types = [
 
 const estates = [];
 
+const months = [
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря',
+];
+
 const getRandomNumber = (minNum, maxNum) => {
     return Math.floor(Math.random() * (maxNum - minNum) + minNum);
 }
-
 
 const getName = (arr) => {
     const i = getRandomNumber(0, arr.length);
@@ -86,7 +102,7 @@ const getDescription = (arr) => {
 }
 
 const getPrice = (MIN_PRICE, MAX_PRICE) => {
-    return (getRandomNumber(MIN_PRICE, MAX_PRICE) /100) * 100;
+    return (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
 }
 
 const getSellerName = (arr) => {
@@ -99,7 +115,12 @@ const getRating = (MIN_RATING, MAX_RATING) => {
 }
 
 const getPublishDate = () => {
-     return Math.floor(Math.random() * Date.now());
+    // console.log(Date.now());
+    // return Math.floor(Math.random() * Date.now());
+    const dateNow = Date.now();
+    const date = getRandomNumber(dateNow - ONE_DAY * 5, dateNow);
+    return date;
+
 }
 
 const getCity = (arr) => {
@@ -152,7 +173,7 @@ const getEstate = () => {
             fullname: getSellerName(sellers),
             rating: getRating(MIN_RATING, MAX_RATING),
         },
-        publishDate: new Date(getPublishDate()),
+        publishDate: getPublishDate(),
         address: {
             city: getCity(cities),
             street: getStreet(streets),
@@ -170,7 +191,7 @@ const getEstate = () => {
 for (let i = 0; i < COUNT_ESTATE; i++) {
     const estate = getEstate();
     estates.push(estate);
-    
+
 }
 
 // console.log(estates);
@@ -194,14 +215,27 @@ const getProductItem = (item) => {
       </h3>
       <div class="product__price">${item.price}</div>
       <div class="product__address">${item.address.street}</div>
-      <div class="product__date">${item.publishDate}</div>
+      <div class="product__date">${getProductDate(item.publishDate)}</div>
     </div>
   </li>`;
-
+    console.log(item.publishDate)
     return card;
 }
 
-const renderElement = (template) =>{
+const getProductDate = (publishDate) => {
+    const dateNow = Date.now();
+    const dateDifference = dateNow - publishDate;
+
+    if (dateDifference < ONE_DAY) {
+        return 'Сегодня';
+    } else if (dateDifference > ONE_DAY && dateDifference < TWO_DAYS) {
+        return 'Вчера';
+    } else {
+        return `${new Date (publishDate).getDate()} ${months[new Date (publishDate).getMonth()]} ${new Date (publishDate).getFullYear()} год`;
+    }
+}
+
+const renderElement = (template) => {
     const item = document.createElement('div');
     item.innerHTML = template;
     return item.firstChild;
@@ -210,20 +244,14 @@ const renderElement = (template) =>{
 const renderProductList = () => {
     const fragment = document.createDocumentFragment();
 
-    const list = estates.length < 7 ? estates.slice() : estates.slice(0,7); // тернарный оператор
-    
+    const list = estates.length < 7 ? estates.slice() : estates.slice(0, 7); // тернарный оператор
+
     list.forEach((item) => {
         const productItem = getProductItem(item);
         const element = renderElement(productItem);
         fragment.appendChild(element);
     });
 
-    // for (let n = 0; n < 7; n++) {
-    //     const productItem = getProductItem(estates[n]);
-    //     const element = renderElement(productItem);
-    //     fragment.appendChild(element);
-    // }
-    
     return fragment;
 }
 
@@ -231,16 +259,3 @@ productList.innerHTML = "";
 
 productList.appendChild(renderProductList());
 
-
-
-
-
-
-
-
-
-// console.log(productList);
-
-// const productTitle = getProductItem();
-
-// newElements.innerHTML = getProductItem();
