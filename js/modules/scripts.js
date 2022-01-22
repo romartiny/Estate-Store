@@ -115,12 +115,9 @@ const getRating = (MIN_RATING, MAX_RATING) => {
 }
 
 const getPublishDate = () => {
-    // console.log(Date.now());
-    // return Math.floor(Math.random() * Date.now());
     const dateNow = Date.now();
     const date = getRandomNumber(dateNow - ONE_DAY * 5, dateNow);
     return date;
-
 }
 
 const getCity = (arr) => {
@@ -194,8 +191,6 @@ for (let i = 0; i < COUNT_ESTATE; i++) {
 
 }
 
-// console.log(estates);
-
 const productList = document.querySelector('.results__list');
 
 const getProductItem = (item) => {
@@ -218,7 +213,6 @@ const getProductItem = (item) => {
       <div class="product__date">${getProductDate(item.publishDate)}</div>
     </div>
   </li>`;
-    console.log(item.publishDate)
     return card;
 }
 
@@ -259,3 +253,155 @@ productList.innerHTML = "";
 
 productList.appendChild(renderProductList());
 
+const modal = document.querySelector('.popup');
+const titleClick = document.querySelectorAll('.product__title');
+const imageClick = document.querySelectorAll('.product__image');
+const closePopup = document.querySelector('.popup__close');
+
+const getModalWindow = (item) => {
+    const card = `<div class="popup__inner">
+    <button class="popup__close" type="button" aria-label="Закрыть">
+      <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.292893 0.292893C0.683418 -0.0976311 1.31658 -0.0976311 1.70711 0.292893L8 6.58579L14.2929 0.292893C14.6834 -0.0976311 15.3166 -0.0976311 15.7071 0.292893C16.0976 0.683418 16.0976 1.31658 15.7071 1.70711L9.41421 8L15.7071 14.2929C16.0976 14.6834 16.0976 15.3166 15.7071 15.7071C15.3166 16.0976 14.6834 16.0976 14.2929 15.7071L8 9.41421L1.70711 15.7071C1.31658 16.0976 0.683418 16.0976 0.292893 15.7071C-0.0976311 15.3166 -0.0976311 14.6834 0.292893 14.2929L6.58579 8L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683418 0.292893 0.292893Z"/>
+      </svg>
+    </button>
+    <div class="popup__date">Сегодня</div>
+    <h3 class="popup__title">1231313</h3>
+    <div class="popup__price">21313 ₽</div>
+    <div class="popup__columns">
+      <div class="popup__left">
+        <div class="popup__gallery gallery">
+          <button class="gallery__favourite fav-add">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M3 7C3 13 10 16.5 11 17C12 16.5 19 13 19 7C19 4.79086 17.2091 3 15 3C12 3 11 5 11 5C11 5 10 3 7 3C4.79086 3 3 4.79086 3 7Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="gallery__main-pic">
+            <img src="img/house_1.png" width="520" height="340" alt="Загородный дом">
+          </div>
+          <ul class="gallery__list">
+            <li class="gallery__item gallery__item--active">
+              <img src="img/house_1.png" width="124" height="80" alt="Загородный дом">
+            </li>
+            <li class="gallery__item">
+              <img src="img/house_2.png" width="124" height="80" alt="Загородный дом">
+            </li>
+            <li class="gallery__item">
+              <img src="img/house_3.png" width="124" height="80" alt="Загородный дом">
+            </li>
+            <li class="gallery__item">
+              <img src="img/house_4.png" width="124" height="80" alt="Загородный дом">
+            </li>
+          </ul>
+        </div>
+        <ul class="popup__chars chars">
+          <li class="chars__item">
+            <div class="chars__name">Площадь</div>
+            <div class="chars__value">105</div>
+          </li>
+          <li class="chars__item">
+            <div class="chars__name">Количество комнат</div>
+            <div class="chars__value">2</div>
+          </li>
+          <li class="chars__item">
+            <div class="chars__name">Тип недвижимости</div>
+            <div class="chars__value">дом</div>
+          </li>
+        </ul>
+        <div class="popup__seller seller seller--good">
+          <h3>Продавец</h3>
+          <div class="seller__inner">
+            <a class="seller__name" href="#">Игнат-Агент</a>
+            <div class="seller__rating"><span>4.9</span></div>
+          </div>
+        </div>
+        <div class="popup__description">
+          <h3>Описание товара</h3>
+          <p>Деревянный дом на берегу озера. На первом этаже кухня-гостиная, на втором этаже спальня. Идеально для пары без детей. В доме много окон, поэтому много света. Дизайнерская мебель входит в стоимость дома.</p>
+        </div>
+      </div>
+      <div class="popup__right">
+        <div class="popup__map">
+          <img src="img/map.jpg" width="268" height="180" alt="Москва, Нахимовский проспект, дом 5">
+        </div>
+        <div class="popup__address">Москва, Нахимовский проспект, дом 5</div>
+      </div>
+    </div>
+  </div>`;
+    return card;
+}
+
+const closeModal = () => {
+    modal.classList.remove('popup--active');
+}
+
+const openModal = () => {
+    modal.classList.add('popup--active');
+}
+
+const initModalListeners = () => {
+
+    closePopup.addEventListener('click', () => {
+        closeModal();
+    })
+}
+
+const onProductCardTitleClick = (evt) => {
+    evt.preventDefault();
+    openModal();
+}
+
+const onProductCardImageClick = (evt) => {
+    openModal();
+    initModalListeners();
+    renderModalInfo();
+}
+
+titleClick.forEach((button) => {
+    button.addEventListener('click', onProductCardTitleClick);
+});
+
+imageClick.forEach((image) => {
+    image.addEventListener('click', onProductCardImageClick);
+});
+
+
+document.addEventListener('click', (evt) => {
+    if(evt.target === modal) {
+        evt.preventDefault;
+        closeModal();
+    }
+});
+
+document.addEventListener('keypress', (evt) => {
+    if(evt.key === 'Escape') { //FIXME
+        closeModal();
+    }
+})
+
+document.addEventListener('keypress', (evt) => {
+    if(evt.key === 'Enter') { //FIXME
+        closeModal();
+    }
+})
+
+const renderModalElement = (card) => {
+    const elem = document.createElement('div');
+    elem.insertAdjacentElement("beforeend", card);
+    return elem.firstElementChild;
+}
+
+const renderModalInfo = (item) => {
+    modal.innerHTML = "";
+    modal.insertAdjacentElement("beforeEnd", renderModalElement(getModalWindow(item)));
+    openModal();
+}
+
+renderModalInfo();
+// renderModalInfo();
+
+// modal.innerHTML = "";
+
+// modal.innerHTML = "";
+
+// openModal();
