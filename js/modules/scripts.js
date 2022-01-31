@@ -101,11 +101,6 @@ const getDescription = (arr) => {
   return arr[i];
 }
 
-const getPrice = (MIN_PRICE, MAX_PRICE) => {
-  let rubPrice = (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
-  return rubPrice;
-}
-
 const getSellerName = (arr) => {
   const index = getRandomNumber(0, arr.length);
   return arr[index];
@@ -161,7 +156,7 @@ const getRoomsCount = (MIN_ROOM_COUNT, MAX_ROOM_COUNT) => {
   return getRandomNumber(MIN_ROOM_COUNT, MAX_ROOM_COUNT);
 }
 
-const priceSet = (MIN_PRICE, MAX_PRICE) => {
+const getPrice = (MIN_PRICE, MAX_PRICE) => {
   const rubPrice = (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
   const normalPrice = Math.floor(rubPrice / 100) * 100;
   const price = Number.prototype.toFixed.call(parseFloat(normalPrice) || 0, 0),
@@ -176,7 +171,7 @@ const getEstate = (index) => {
     id: index,
     name: getName(names),
     description: getDescription(descriptions),
-    price: priceSet(MIN_PRICE, MAX_PRICE),
+    price: getPrice(MIN_PRICE, MAX_PRICE),
     category: CATEGORY,
     seller: {
       fullname: getSellerName(sellers),
@@ -251,7 +246,7 @@ const renderElement = (template) => {
 
 const renderProductList = (list) => {
   const fragment = document.createDocumentFragment();
-  //
+
   list.forEach((item) => {
     const productItem = getProductItem(item);
     const element = renderElement(productItem);
