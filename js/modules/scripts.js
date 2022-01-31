@@ -102,7 +102,8 @@ const getDescription = (arr) => {
 }
 
 const getPrice = (MIN_PRICE, MAX_PRICE) => {
-  return (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
+  let rubPrice = (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
+  return rubPrice;
 }
 
 const getSellerName = (arr) => {
@@ -160,12 +161,22 @@ const getRoomsCount = (MIN_ROOM_COUNT, MAX_ROOM_COUNT) => {
   return getRandomNumber(MIN_ROOM_COUNT, MAX_ROOM_COUNT);
 }
 
+const priceSet = (MIN_PRICE, MAX_PRICE) => {
+  const rubPrice = (getRandomNumber(MIN_PRICE, MAX_PRICE) / 100) * 100;
+  const normalPrice = Math.floor(rubPrice / 100) * 100;
+  const price = Number.prototype.toFixed.call(parseFloat(normalPrice) || 0, 0),
+    priceReplace = price.replace(/(\D)/g, ","),
+    lastPrice = priceReplace.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+
+  return lastPrice + ' ₽';
+};
+
 const getEstate = (index) => {
   return {
     id: index,
     name: getName(names),
     description: getDescription(descriptions),
-    price: getPrice(MIN_PRICE, MAX_PRICE),
+    price: priceSet(MIN_PRICE, MAX_PRICE),
     category: CATEGORY,
     seller: {
       fullname: getSellerName(sellers),
@@ -211,7 +222,7 @@ const getProductItem = (item) => {
       <h3 class="product__title">
         <a href="#" data-id="${item.id}">${item.name}</a>
       </h3>
-      <div class="product__price">${item.price} ₽</div>
+      <div class="product__price">${item.price}</div>
       <div class="product__address">${item.address.street}</div>
       <div class="product__date">${getProductDate(item.publishDate)}</div>
     </div>
@@ -278,7 +289,7 @@ const getModalWindow = (item) => {
     </button>
     <div class="popup__date">${getProductDate(item.publishDate)}</div>
     <h3 class="popup__title">${item.name}</h3>
-    <div class="popup__price">${item.price} ₽</div>
+    <div class="popup__price">${item.price}</div>
     <div class="popup__columns">
       <div class="popup__left">
         <div class="popup__gallery gallery">
