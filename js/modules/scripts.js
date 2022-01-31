@@ -192,6 +192,8 @@ for (let i = 0; i < COUNT_ESTATE; i++) {
 
 }
 
+//----------------------------------------------------------------
+
 const productList = document.querySelector('.results__list');
 
 const getProductItem = (item) => {
@@ -258,17 +260,13 @@ productList.innerHTML = "";
 
 productList.appendChild(renderProductList(list));
 
-// init clicks & buttons
+//----------------------------------------------------------------
+
 const modal = document.querySelector('.popup');
 const titleClick = document.querySelectorAll('.product__title');
 const imageClick = document.querySelectorAll('.product__image');
-const closePopup = document.querySelectorAll('.popup__close');
+const closePopup = document.querySelector('.popup__close');
 
-const closePopupInit = () => {
-  const closePopup = document.querySelectorAll('.popup__close');
-  console.log(closePopup);
-  return closePopup;
-}
 //render modal window
 
 const getModalWindow = (item) => {
@@ -293,18 +291,7 @@ const getModalWindow = (item) => {
             <img src="${item.photos[0]}" width="520" height="340" alt="Загородный дом">
           </div>
           <ul class="gallery__list">
-            <li class="gallery__item gallery__item--active">
-              <img src="img/house_1.png" width="124" height="80" alt="Загородный дом">
-            </li>
-            <li class="gallery__item">
-              <img src="img/house_2.png" width="124" height="80" alt="Загородный дом">
-            </li>
-            <li class="gallery__item">
-              <img src="img/house_3.png" width="124" height="80" alt="Загородный дом">
-            </li>
-            <li class="gallery__item">
-              <img src="img/house_4.png" width="124" height="80" alt="Загородный дом">
-            </li>
+            ${renderPhotos(item.photos, item.name)}
           </ul>
         </div>
         <ul class="popup__chars chars">
@@ -318,7 +305,7 @@ const getModalWindow = (item) => {
           </li>
           <li class="chars__item">
             <div class="chars__name">Тип недвижимости</div>
-            <div class="chars__value">${item.filters.type}</div>
+            <div class="chars__value">${typeTranslate(item.filters.type)}</div>
           </li>
         </ul>
         <div class="popup__seller seller seller--good">
@@ -337,26 +324,72 @@ const getModalWindow = (item) => {
         <div class="popup__map">
           <img src="img/map.jpg" width="268" height="180" alt="Москва, Нахимовский проспект, дом 5">
         </div>
-        <div class="popup__address">${item.address.city} ${item.address.street} ${item.address.building}</div>
+        <div class="popup__address">${item.address.city}, ${item.address.street}, ${item.address.building}</div>
       </div>
     </div>
   </div>`;
   return card;
 }
 
-//buttons for open and close
+// gallery photos
+
+const renderPhotos = (photos, name) => {
+  let images = '';
+  photos.forEach((elem) => {
+    images = images + `<li class="gallery__item gallery__item--active">
+    <img src="${elem}" width="124" height="80" alt="${name}">
+  </li>`;
+  });
+  return images;
+}
+
+const activePhotoList = (evt) => {
+
+}
+
+//rus type translate
+
+const typeTranslate = (type) => {
+  switch (type) {
+    case 'apartment':
+      return 'Комната';
+    case 'flat':
+      return 'Квартира';
+    case 'house':
+      return 'Дом';
+    default:
+      return 'Неизвестно';
+  }
+}
+
+//init buttons
 
 const closeModal = () => {
-  modal.classList.remove('popup--active');
+  return modal.classList.remove('popup--active');
 }
 
 const openModal = () => {
-  modal.classList.add('popup--active');
+  return modal.classList.add('popup--active');
 }
 
 //listner key presses
 
+closePopup.addEventListener('click', (evt) => {
+  onClosePopupClick(evt);
+});
+
+const closePopupInit = () => {
+  const closePopup = document.querySelectorAll('.popup__close');
+  console.log("closePopup");
+  return closePopup;
+}
+
 const initModalListeners = () => {
+
+  titleClick.forEach((button) => {
+    button.addEventListener('click', onProductCardTitleClick);
+  });
+
   document.addEventListener('click', (evt) => {
     if (evt.target === modal) {
       evt.preventDefault;
@@ -379,41 +412,34 @@ const initModalListeners = () => {
 
 //on click do
 
-
 const onProductCardTitleClick = (evt) => {
   const id = +evt.target.dataset.id;
   const productData = findProduct(id, list);
   renderModalInfo(productData);
-  closePopupInit();
   initModalListeners();
   openModal();
 }
 
 const onProductCardImageClick = (evt) => {
-  // console.log(evt.target.dataset.id);
   const id = +evt.target.dataset.id;
   const productData = findProduct(id, list);
   renderModalInfo(productData);
-  closePopupInit();
   initModalListeners();
   openModal();
 }
 
 const onClosePopupClick = (evt) => {
-  initModalListeners();
+  initModalListeners(evt);
   closeModal();
-  console.log('close');
 }
 
 //on click
 
-titleClick.forEach((button) => {
-  button.addEventListener('click', onProductCardTitleClick);
-});
 
-closePopup.forEach((button) => {
-  button.addEventListener('click', onClosePopupClick);
-});
+
+// closePopup.addEventListener((button) => {
+//   button.addEventListener('click', onClosePopupClick);
+// });
 
 imageClick.forEach((image) => {
   image.addEventListener('click', onProductCardImageClick);
@@ -433,10 +459,18 @@ const renderModalInfo = (productData) => {
 }
 
 // renderModalInfo();
-// renderModalInfo();
 
 // modal.innerHTML = "";
 
 // modal.innerHTML = "";
 
 // openModal();
+
+// const galleryInitPopup = (evt) => {
+//   const galleryImageList = document.querySelectorAll('.gallery__list');
+//   // console.log("init galleryImageList");
+//   return galleryImageList;
+// }
+
+// galleryImageList.onclick = function(evt) {
+//   let thumbnail = evt.target.closest('img');
