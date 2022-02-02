@@ -271,7 +271,7 @@ productList.appendChild(renderProductList(list));
 const modal = document.querySelector('.popup');
 const titleClick = document.querySelectorAll('.product__title');
 const imageClick = document.querySelectorAll('.product__image');
-const closePopup = document.querySelector('.popup__close');
+const closePopup = document.querySelectorAll('.popup__close');
 
 //render modal window
 
@@ -341,8 +341,8 @@ const getModalWindow = (item) => {
 
 const renderPhotos = (photos, name) => {
   let images = '';
-  photos.forEach((elem) => {
-    images = images + `<li class="gallery__item gallery__item--active">
+  photos.forEach((elem, index) => {
+    images = images + `<li class="gallery__item ${index === 0 ? 'gallery__item--active' : ""} ">
     <img src="${elem}" width="124" height="80" alt="${name}">
   </li>`;
   });
@@ -350,7 +350,7 @@ const renderPhotos = (photos, name) => {
 }
 
 const activePhotoList = (evt) => {
-
+  
 }
 
 //rus type translate
@@ -380,21 +380,13 @@ const openModal = () => {
 
 //listner key presses
 
-closePopup.addEventListener('click', (evt) => {
-  onClosePopupClick(evt);
-});
-
 const closePopupInit = () => {
-  const closePopup = document.querySelectorAll('.popup__close');
+  const closePopup = document.querySelector('.popup__close');
   console.log("closePopup");
   return closePopup;
 }
 
-const initModalListeners = () => {
-
-  titleClick.forEach((button) => {
-    button.addEventListener('click', onProductCardTitleClick);
-  });
+const initModalListeners = (evt) => {
 
   document.addEventListener('click', (evt) => {
     if (evt.target === modal) {
@@ -423,6 +415,7 @@ const onProductCardTitleClick = (evt) => {
   const productData = findProduct(id, list);
   renderModalInfo(productData);
   initModalListeners();
+  closePopupInit();
   openModal();
 }
 
@@ -431,11 +424,13 @@ const onProductCardImageClick = (evt) => {
   const productData = findProduct(id, list);
   renderModalInfo(productData);
   initModalListeners();
+  closePopupInit();
+  onClosePopupClick();
   openModal();
 }
 
-const onClosePopupClick = (evt) => {
-  initModalListeners(evt);
+const onClosePopupClick = () => {
+  closePopupInit();
   closeModal();
 }
 
@@ -450,6 +445,14 @@ const onClosePopupClick = (evt) => {
 imageClick.forEach((image) => {
   image.addEventListener('click', onProductCardImageClick);
 });
+
+titleClick.forEach((button) => {
+  button.addEventListener('click', onProductCardTitleClick);
+});
+
+closePopup.forEach((button) => {
+  button.addEventListener('click', onClosePopupClick);
+})
 
 //render main modal window
 
