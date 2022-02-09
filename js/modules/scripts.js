@@ -12,6 +12,7 @@ const MIN_ROOM_COUNT = 1;
 const MAX_ROOM_COUNT = 7;
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const TWO_DAYS = ONE_DAY * 2;
+const MAP_TOKEN = 'pk.eyJ1Ijoicm9tYXJ0aW55IiwiYSI6ImNremY5dzY4MzFhbWoyc282b3F6ajQxMmoifQ.CLr7iZg8U6AkSRE3Olf_5Q';
 
 const names = [
   "Двушка в центре Питера",
@@ -44,11 +45,11 @@ const cities = [
 ];
 
 const streets = [
-  "ул. Шахтеров",
-  "ул. Полярная",
-  "ул. Лиственная",
-  "ул. Мира",
-  "ул. Советская"
+  "ул.Шахтеров",
+  "ул.Полярная",
+  "ул.Лиственная",
+  "ул.Мира",
+  "ул.Советская"
 ];
 
 const fileNames = [
@@ -269,11 +270,20 @@ productList.appendChild(renderProductList(list));
 //----------------------------------------------------------------
 
 const modal = document.querySelector('.popup');
-const titleClick = document.querySelectorAll('.product__title');
-const imageClick = document.querySelectorAll('.product__image');
-const closePopup = document.querySelectorAll('.popup__close');
+const productTitle = document.querySelectorAll('.product__title');
+const productImage = document.querySelectorAll('.product__image');
 
-//render modal window
+// gallery photos
+
+const renderPhotos = (photos, name) => {
+  let images = '';
+  photos.forEach((elem, index) => {
+    images = images + `<li class="gallery__item ${index === 0 ? 'gallery__item--active' : ""} ">
+    <img src="${elem}" width="124" height="80" alt="${name}">
+  </li>`;
+  });
+  return images;
+}
 
 const getModalWindow = (item) => {
   const card = `<div class="popup__inner">
@@ -311,7 +321,7 @@ const getModalWindow = (item) => {
           </li>
           <li class="chars__item">
             <div class="chars__name">Тип недвижимости</div>
-            <div class="chars__value">${typeTranslate(item.filters.type)}</div>
+            <div class="chars__value">${typeTranslate[item.filters.type]}</div>
           </li>
         </ul>
         <div class="popup__seller seller seller--good">
@@ -327,8 +337,8 @@ const getModalWindow = (item) => {
         </div>
       </div>
       <div class="popup__right">
-        <div class="popup__map">
-          <img src="img/map.jpg" width="268" height="180" alt="Москва, Нахимовский проспект, дом 5">
+        <div class="popup__map" id="map">  
+
         </div>
         <div class="popup__address">${item.address.city}, ${item.address.street}, ${item.address.building}</div>
       </div>
@@ -337,149 +347,205 @@ const getModalWindow = (item) => {
   return card;
 }
 
-// gallery photos
+//map token
 
-const renderPhotos = (photos, name) => {
-  let images = '';
-  photos.forEach((elem, index) => {
-    images = images + `<li class="gallery__item ${index === 0 ? 'gallery__item--active' : ""} ">
-    <img src="${elem}" width="124" height="80" alt="${name}">
-  </li>`;
-  });
-  return images;
+const typeTranslate = {
+  'apartment': 'Комната',
+  'flat': 'Квартира',
+  'house': 'Дом',
 }
 
-const activePhotoList = (evt) => {
-  
+const results = modal.querySelector('#map');
+
+function renderAddress(addressArr, item) {
+  let addressData = addressArr;
+  const firstMapElement = addressData[0];
+  const adressLongitude = firstMapElement.lon; //dolgota
+  const adressLatitude = firstMapElement.lat; //shirota
+  console.log(adressLongitude, adressLatitude);
+
+  return adressLongitude, adressLatitude;
 }
 
-//rus type translate
+function findAddress(item) {
 
-const typeTranslate = (type) => {
-  switch (type) {
-    case 'apartment':
-      return 'Комната';
-    case 'flat':
-      return 'Квартира';
-    case 'house':
-      return 'Дом';
-    default:
-      return 'Неизвестно';
-  }
+  let addressArr = [];
+  let fullAddress = `${item.address.city}+${item.address.street}+${item.address.building}`;
+
+  let url = 'https://nominatim.openstreetmap.org/search?format=json&limit=3&q=' + fullAddress;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => addressArr = data)
+    .then(show => cosnole.log(renderAddress()))
+    .catch(err => renderAddress(addressArr))
+}
+
+const popupMap = (adressLongitude, addressLatitude) => {
+
+  let map = L.map('map').setView([adressLongitude, addressLatitude]);
+
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: MAP_TOKEN,
+  }).addTo(map);
+
+  L.marker([adressLongitude, addressLatitude]).addTo(map);
+
 }
 
 //init buttons
 
-const closeModal = () => {
-  return modal.classList.remove('popup--active');
-}
+const initOpenModal = (evt) => {
+  const onClosePopupButtonClick = () => {
+    removePopupListeners();
+    closeModal();
+  }
 
-const openModal = () => {
-  return modal.classList.add('popup--active');
-}
+  const openModal = () => {
+    modal.classList.add('popup--active');
+  }
 
-//listner key presses
+  const closeModal = () => {
+    modal.classList.remove('popup--active');
+  }
 
-const closePopupInit = () => {
-  const closePopup = document.querySelector('.popup__close');
-  console.log("closePopup");
-  return closePopup;
-}
-
-const initModalListeners = (evt) => {
-
-  document.addEventListener('click', (evt) => {
+  const onOverlayClick = (evt) => {
     if (evt.target === modal) {
-      evt.preventDefault;
+      // evt.preventDefault;
       closeModal();
     }
-  });
+  }
 
-  document.addEventListener('keypress', (evt) => {
-    if (evt.key === 'Escape') {
-      closeModal();
-    }
-  });
-
-  document.addEventListener('keypress', (evt) => {
+  const onClosePopupEnterPress = (evt) => {
     if (evt.key === 'Enter') {
-      closeModal();
+      onClosePopupButtonClick();
     }
-  });
-}
+  }
 
-//on click do
+  const onClosePopupEscapePress = (evt) => {
+    if (evt.key == 'Escape') {
+      evt.preventDefault();
+      onClosePopupButtonClick();
+    }
+  }
 
-const onProductCardTitleClick = (evt) => {
+  const onClosePopupClick = (evt) => {
+    onClosePopupButtonClick();
+  }
+
+  const initModalListeners = (evt) => {
+    document.addEventListener('click', onOverlayClick);
+    closePopupButton.addEventListener('click', onClosePopupClick);
+    document.addEventListener('keypress', onClosePopupEscapePress);
+    modal.addEventListener('keypress', onClosePopupEnterPress);
+  }
+
+  const removePopupListeners = () => {
+    document.removeEventListener('click', onOverlayClick);
+    closePopupButton.removeEventListener('click', onClosePopupButtonClick);
+    document.addEventListener('keypress', onClosePopupEscapePress);
+    modal.removeEventListener('keypress', onClosePopupEnterPress);
+  }
+
   const id = +evt.target.dataset.id;
   const productData = findProduct(id, list);
+
+  const renderModalElement = (card) => {
+    const elem = document.createElement('div');
+    elem.insertAdjacentElement("beforeend", card);
+    return elem.firstChild;
+  }
+
+  const closePopupButton = modal.querySelector('.popup__close');
+  const galleryList = modal.querySelector('.gallery__list');
+  const galleryItems = galleryList.querySelectorAll('.gallery__item');
+  const mainPhoto = modal.querySelector('.gallery__main-pic');
+
+
+  const onImageClick = (evt, item) => {
+    // mainPhoto.src = evt.target.src; 
+
+    galleryItems.forEach(item => {
+      item.classList.remove('gallery__item--active');
+    });
+
+    evt.currentTarget.classList.add('gallery__item--active');
+    mainPhoto.firstElementChild.src = evt.target.src;
+  }
+
+  galleryItems.forEach((image) => {
+    image.addEventListener('click', onImageClick);
+  });
+
+  const renderModalInfo = (productData) => {
+    modal.innerHTML = "";
+    renderPopupMap(productData);
+    modal.insertAdjacentElement("beforeEnd", renderElement(getModalWindow(productData)));
+  }
+
+  const renderPopupMap = (item) => {
+    findAddress(productData);
+    // renderAddress(findAddress(item));
+     // popupMap(adressLongitude, addressLatitude);
+  }
+
   renderModalInfo(productData);
+
   initModalListeners();
-  closePopupInit();
+
   openModal();
+}
+
+//geocode map cords
+
+const onProductCardTitleClick = (evt) => {
+  evt.preventDefault();
+  initOpenModal(evt);
 }
 
 const onProductCardImageClick = (evt) => {
-  const id = +evt.target.dataset.id;
-  const productData = findProduct(id, list);
-  renderModalInfo(productData);
-  initModalListeners();
-  closePopupInit();
-  onClosePopupClick();
-  openModal();
+  initOpenModal(evt);
 }
 
-const onClosePopupClick = () => {
-  closePopupInit();
-  closeModal();
-}
-
-//on click
-
-
-
-// closePopup.addEventListener((button) => {
-//   button.addEventListener('click', onClosePopupClick);
-// });
-
-imageClick.forEach((image) => {
+productImage.forEach((image) => {
   image.addEventListener('click', onProductCardImageClick);
 });
 
-titleClick.forEach((button) => {
+productTitle.forEach((button) => {
   button.addEventListener('click', onProductCardTitleClick);
 });
 
-closePopup.forEach((button) => {
-  button.addEventListener('click', onClosePopupClick);
-})
+//----------------------------------------------------------------
 
-//render main modal window
+const sortPopularButton = document.querySelector('#sort-popular');
+const sortCheapButton = document.querySelector('#sort-cheap');
+const sortNewButton = document.querySelector('#sort-new');
 
-const renderModalElement = (card) => {
-  const elem = document.createElement('div');
-  elem.insertAdjacentElement("beforeend", card);
-  return elem.firstChild;
+const sortData = [];
+
+const sortCheap = () => {
+  const list = document.getElementById('List')
+
+  // функция сортировки
+  const sortListById = (list) => {
+    const listElements = [...list.children] // превращаем NodeList в настоящий массив
+    // сортируем
+    const sortedListElements = listElements.sort((a, b) => (+a.id) - (+b.id))
+    // очищаем родительский контейнер
+    list.innerHTML = ''
+    // вставляем элементы в новом порядке
+    sortedListElements.forEach(el => list.appendChild(el))
+  }
+
+  const button = document.querySelector('button')
+  button.onclick = () => sortListById(list)
 }
 
-const renderModalInfo = (productData) => {
-  modal.innerHTML = "";
-  modal.insertAdjacentElement("beforeEnd", renderElement(getModalWindow(productData)));
-}
+sortCheapButton.addEventListener('click', sortCheap);
 
-// renderModalInfo();
-
-// modal.innerHTML = "";
-
-// modal.innerHTML = "";
-
-// openModal();
-
-// const galleryInitPopup = (evt) => {
-//   const galleryImageList = document.querySelectorAll('.gallery__list');
-//   // console.log("init galleryImageList");
-//   return galleryImageList;
-// }
-
-// galleryImageList.onclick = function(evt) {
-//   let thumbnail = evt.target.closest('img');
+console.log(sortCheapButton);
