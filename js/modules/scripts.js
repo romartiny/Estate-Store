@@ -355,51 +355,6 @@ const typeTranslate = {
   'house': 'Дом',
 }
 
-const results = modal.querySelector('#map');
-
-function renderAddress(addressArr, item) {
-  let addressData = addressArr;
-  const firstMapElement = addressData[0];
-  const adressLongitude = firstMapElement.lon; //dolgota
-  const adressLatitude = firstMapElement.lat; //shirota
-  console.log(adressLongitude, adressLatitude);
-
-  return adressLongitude, adressLatitude;
-}
-
-function findAddress(item) {
-
-  let addressArr = [];
-  let fullAddress = `${item.address.city}+${item.address.street}+${item.address.building}`;
-
-  let url = 'https://nominatim.openstreetmap.org/search?format=json&limit=3&q=' + fullAddress;
-
-  fetch(url)
-    .then(response => response.json())
-    .then(data => addressArr = data)
-    .then(show => cosnole.log(renderAddress()))
-    .catch(err => renderAddress(addressArr))
-}
-
-const popupMap = (adressLongitude, addressLatitude) => {
-
-  let map = L.map('map').setView([adressLongitude, addressLatitude]);
-
-  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox/streets-v11',
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: MAP_TOKEN,
-  }).addTo(map);
-
-  L.marker([adressLongitude, addressLatitude]).addTo(map);
-
-}
-
-//init buttons
-
 const initOpenModal = (evt) => {
   const onClosePopupButtonClick = () => {
     removePopupListeners();
@@ -452,20 +407,31 @@ const initOpenModal = (evt) => {
     modal.removeEventListener('keypress', onClosePopupEnterPress);
   }
 
-  const id = +evt.target.dataset.id;
-  const productData = findProduct(id, list);
-
   const renderModalElement = (card) => {
     const elem = document.createElement('div');
     elem.insertAdjacentElement("beforeend", card);
     return elem.firstChild;
   }
 
+  const id = +evt.target.dataset.id;
+  const productData = findProduct(id, list);
+
+  const renderPopupMap = (item) => {
+    findAddress(productData);
+  }
+
+  const renderModalInfo = (productData) => {
+    modal.innerHTML = "";
+    modal.insertAdjacentElement("beforeEnd", renderElement(getModalWindow(productData)));
+    renderPopupMap(productData);
+  }
+
+  renderModalInfo(productData);
+
   const closePopupButton = modal.querySelector('.popup__close');
   const galleryList = modal.querySelector('.gallery__list');
   const galleryItems = galleryList.querySelectorAll('.gallery__item');
   const mainPhoto = modal.querySelector('.gallery__main-pic');
-
 
   const onImageClick = (evt, item) => {
     // mainPhoto.src = evt.target.src; 
@@ -482,19 +448,59 @@ const initOpenModal = (evt) => {
     image.addEventListener('click', onImageClick);
   });
 
-  const renderModalInfo = (productData) => {
-    modal.innerHTML = "";
-    renderPopupMap(productData);
-    modal.insertAdjacentElement("beforeEnd", renderElement(getModalWindow(productData)));
+  // adressLongitude, addressLatitude
+
+  const popupMap = (adressLongitude, addressLatitude) => {
+
+    // const popupFullMap = modal.querySelector('map');
+
+    // let map = L.map('map').setView([1, 1]);
+
+    let map = L.map('map', {
+      setView: [adressLongitude, addressLatitude],
+      center: [adressLongitude, addressLatitude],
+      zoom: -12
+    });
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: '',
+      maxZoom: 18,
+      id: 'mapbox/streets-v11',
+      tileSize: 1024,
+      zoomOffset: 1,
+      accessToken: MAP_TOKEN,
+    }).addTo(map);
+
+    L.marker([adressLongitude, addressLatitude]).addTo(map);
+
   }
 
-  const renderPopupMap = (item) => {
-    findAddress(productData);
-    // renderAddress(findAddress(item));
-     // popupMap(adressLongitude, addressLatitude);
+  const results = modal.querySelector('map');
+
+  function findAddress(item) {
+
+    let addressArr = [];
+    let fullAddress = `${item.address.city}+${item.address.street}+${item.address.building}`;
+
+    let url = 'https://nominatim.openstreetmap.org/search?format=json&limit=3&q=' + fullAddress;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => addressArr = data)
+      .then(show => cosnole.log(renderAddress()))
+      .catch(err => renderAddress(addressArr))
   }
 
-  renderModalInfo(productData);
+  function renderAddress(addressArr, item) {
+    let addressData = addressArr;
+    // console.log(addressData);
+    const firstMapElement = addressData[0];
+    const adressLongitude = firstMapElement.lon; //dolgota
+    const adressLatitude = firstMapElement.lat; //shirota
+    console.log(adressLongitude, adressLatitude);
+    popupMap(adressLongitude, adressLatitude);
+    // return adressLongitude, adressLatitude;
+  }
 
   initModalListeners();
 
@@ -524,28 +530,17 @@ productTitle.forEach((button) => {
 
 const sortPopularButton = document.querySelector('#sort-popular');
 const sortCheapButton = document.querySelector('#sort-cheap');
-const sortNewButton = document.querySelector('#sort-new');
+const sortDateButton = document.querySelector('#sort-new');
 
-const sortData = [];
+const filterCopy = [];
 
-const sortCheap = () => {
-  const list = document.getElementById('List')
+const sortPrice = (firstItem, secondItem) => firstItem.price - secondItem.price;
+const sortDate = (firstItem, secondItem) => firstItem.publishDate - secondItem.publishDate;
 
-  // функция сортировки
-  const sortListById = (list) => {
-    const listElements = [...list.children] // превращаем NodeList в настоящий массив
-    // сортируем
-    const sortedListElements = listElements.sort((a, b) => (+a.id) - (+b.id))
-    // очищаем родительский контейнер
-    list.innerHTML = ''
-    // вставляем элементы в новом порядке
-    sortedListElements.forEach(el => list.appendChild(el))
-  }
-
-  const button = document.querySelector('button')
-  button.onclick = () => sortListById(list)
+const onSortPriceButtonClick = () => {
+  renderElement(filterCopy.slice().sort(sortProductPrice));
 }
 
-sortCheapButton.addEventListener('click', sortCheap);
-
-console.log(sortCheapButton);
+const lastSort = () => {
+  sortCheapButton.addEventListener('click', onSortPriceButtonClick);
+}
