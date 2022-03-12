@@ -13,6 +13,9 @@ const MAX_ROOM_COUNT = 7;
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const TWO_DAYS = ONE_DAY * 2;
 const MAP_TOKEN = 'pk.eyJ1Ijoicm9tYXJ0aW55IiwiYSI6ImNremY5dzY4MzFhbWoyc282b3F6ajQxMmoifQ.CLr7iZg8U6AkSRE3Olf_5Q';
+const MIN_PRICE_STEP = 100000;
+const MAX_PRICE_STEP = 4000000;
+const FILTER_PRICE_STEP = 10000;
 
 const names = [
   "Двушка в центре Питера",
@@ -528,19 +531,135 @@ productTitle.forEach((button) => {
 
 //----------------------------------------------------------------
 
-const sortPopularButton = document.querySelector('#sort-popular');
-const sortCheapButton = document.querySelector('#sort-cheap');
-const sortDateButton = document.querySelector('#sort-new');
+// const sortPopularButton = document.querySelector('#sort-popular');
+// const sortCheapButton = document.querySelector('#sort-cheap');
+// const sortDateButton = document.querySelector('#sort-new');
 
-const filterCopy = [];
+// const filterCopy = [];
 
-const sortPrice = (firstItem, secondItem) => firstItem.price - secondItem.price;
-const sortDate = (firstItem, secondItem) => firstItem.publishDate - secondItem.publishDate;
+// const sortPrice = (firstItem, secondItem) => firstItem.price - secondItem.price;
+// const sortDate = (firstItem, secondItem) => firstItem.publishDate - secondItem.publishDate;
 
-const onSortPriceButtonClick = () => {
-  renderElement(filterCopy.slice().sort(sortProductPrice));
+// const onSortPriceButtonClick = () => {
+//   renderElement(filterCopy.slice().sort(sortPrice));
+// }
+
+// const lastSort = (evt) => {
+//   sortCheapButton.addEventListener('click', onSortPriceButtonClick);
+//   console.log('its ok')
+// }
+
+// lastSort();
+
+// ---------------------------------------------------------------- filter form
+
+const filterForm = document.querySelector('.filter-form');
+const filterSubmitBtn  = document.querySelector('.ilter__button');
+// const filterSubmitBtn = filterForm.querySelector('.filter__button');
+
+let filterData = [];
+let filterDataCopy = [];
+
+//range slider filter
+
+const generateRangeValues = () => {
+  const rangeValues = [];
+
+  for (let i = MIN_PRICE_STEP; i < MAX_PRICE_STEP + 1; i += FILTER_PRICE_STEP) {
+      rangeValues.push(i);
+  }
+
+  return rangeValues;
 }
 
-const lastSort = () => {
-  sortCheapButton.addEventListener('click', onSortPriceButtonClick);
+const getCardPrice = (itemPrice, filterPrice) => {
+  return (itemPrice >= filterPrice[0] && itemPrice <= filterPrice[1]) || itemPrice === 0 || itemPrice === null;
+}
+
+var mySlider = new rSlider({
+  target: '#sampleSlider',
+  set: [MIN_PRICE_STEP, MAX_PRICE_STEP],
+  values: generateRangeValues(),
+  range: true,
+  tooltip: true,
+  scale: true,
+  labels: false,
+  width: 300,
+  step: FILTER_PRICE_STEP,
+});
+
+const typeEstate = (estateType,house,apartment,flat) => {
+  if (house || apartment || flat) {
+    switch (estateType) {
+      case 'house':
+        return house;
+      case 'apartment':
+        return apartment;
+      case 'flat':
+        return flat;
+    }
+  }
+  else return true;
+}
+
+const roomsCount = () => {
+  switch (countRooms) {
+    case 'one':
+      return countRooms === 1;
+    case 'two':
+      return countRooms === 2;
+    case 'tree':
+      return countRooms === 3;
+    case 'four':
+      return countRooms === 4;  
+    case 'fivemore':
+      return countRooms >= 5; 
+
+    default: return true;       
+  }
+}
+
+const getValueSlider = (sliderValue) => {
+  let sliderValues = sliderValues.split(',').map(item => +item);
+
+  return {
+    min: sliderValues[0],
+    max: sliderValues[1]
+  };
+};
+
+const getFilter = () => {
+  const {house, apartment, rooms, square, sampleSlider} = filterForm;
+
+  return {
+    minPrice: getValueSlider(sampleSlider.value).min,
+    maxPrice: getValueSlider(sampleSlider.value).max,
+    house: house.checked,
+    flat: flat.checked,
+    apartment: apartment.checked,
+    area: square.checked,
+    rooms: rooms.checked,
+  };
+};
+
+// const mySliderMinValue = document.querySelector('.js-rSlider-min .value');
+// const mySliderMaxValue = document.querySelector('.js-rSlider-max .value');
+
+const submitForm = (evt) => {
+  evt.preventDefault();
+  const filterDataValues = getFilter();
+  
+  filterDataCopy = filterData.filter(card => (
+    getCardPrice(card.price, filterDataValues.sampleSlider) &&
+    typeEstate(card.filters.type, filterValues.house, filterValues.flat, filterValues.apartment) &&
+    roomsCount(card.filtersCount, filterValues.rooms) &&
+    card.filters.area >= filterValues.area
+  )
+  );
+  sort('popular', filterDataCopy);
+  renderProductList(filterDataCopy);
+};
+
+const initForm = () => {
+  filterSubmitBtn.addEventListener('submit', submitForm);
 }
